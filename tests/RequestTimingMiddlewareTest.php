@@ -54,7 +54,7 @@ class RequestTimingMiddlewareTest extends BaseTest
         $metric = current($this->statsdExporterClient->getExportedMetrics());
         $this->assertEquals($expectedTags, $metric->getTags());
         $this->assertEquals('ms', $metric->getUnit());
-        $this->assertEquals('http_rest_service_api_request', $metric->getName());
+        $this->assertEquals('http_rest_service_api_request_duration', $metric->getName());
         $this->assertGreaterThanOrEqual(0, $metric->getValue());
     }
 
@@ -77,7 +77,7 @@ class RequestTimingMiddlewareTest extends BaseTest
         $metric = current($this->statsdExporterClient->getExportedMetrics());
         $this->assertEquals(array_merge($expectedTags, ['response' => $responseCode]), $metric->getTags());
         $this->assertEquals('ms', $metric->getUnit());
-        $this->assertEquals('http_rest_service_api_request', $metric->getName());
+        $this->assertEquals('http_rest_service_api_request_duration', $metric->getName());
         $this->assertGreaterThanOrEqual(0, $metric->getValue());
     }
 
@@ -102,7 +102,7 @@ class RequestTimingMiddlewareTest extends BaseTest
         $metric = current($this->statsdExporterClient->getExportedMetrics());
         $this->assertEquals(array_merge($expectedTags, ['response' => $responseCode]), $metric->getTags());
         $this->assertEquals('ms', $metric->getUnit());
-        $this->assertEquals('http_rest_service_api_request', $metric->getName());
+        $this->assertEquals('http_rest_service_api_request_duration', $metric->getName());
         $this->assertGreaterThanOrEqual(0, $metric->getValue());
     }
 

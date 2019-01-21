@@ -44,7 +44,7 @@ class RequestMetricsCollector extends MetricCollector
 
     protected function getTimersMetricName(): string
     {
-        return 'http_rest_service_api_request';
+        return 'http_rest_service_api_request_duration';
     }
 
 
