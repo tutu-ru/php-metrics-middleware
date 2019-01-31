@@ -15,32 +15,37 @@ class RequestTimingMiddlewareTest extends BaseTest
             [
                 Factory::createServerRequest('GET', '/'),
                 200,
-                ['app' => 'test', 'uri' => '_', 'method' => 'get', 'response' => 200]
+                ['app' => 'test', 'uri' => '/', 'method' => 'get', 'response' => 200]
             ],
             [
                 Factory::createServerRequest('GET', '/main'),
                 200,
-                ['app' => 'test', 'uri' => 'main', 'method' => 'get', 'response' => 200]
+                ['app' => 'test', 'uri' => '/main', 'method' => 'get', 'response' => 200]
             ],
             [
                 Factory::createServerRequest('GET', '/main/1'),
                 200,
-                ['app' => 'test', 'uri' => 'main', 'method' => 'get', 'response' => 200]
+                ['app' => 'test', 'uri' => '/main', 'method' => 'get', 'response' => 200]
+            ],
+            [
+                Factory::createServerRequest('GET', '/main/1/'),
+                200,
+                ['app' => 'test', 'uri' => '/main', 'method' => 'get', 'response' => 200]
             ],
             [
                 Factory::createServerRequest('POST', '/main/post'),
                 200,
-                ['app' => 'test', 'uri' => 'main_post', 'method' => 'post', 'response' => 200]
+                ['app' => 'test', 'uri' => '/main/post', 'method' => 'post', 'response' => 200]
             ],
             [
                 Factory::createServerRequest('DELETE', '/main/post'),
                 404,
-                ['app' => 'test', 'uri' => 'main_post', 'method' => 'delete', 'response' => 404]
+                ['app' => 'test', 'uri' => '/main/post', 'method' => 'delete', 'response' => 404]
             ],
             [
                 Factory::createServerRequest('GET', '/main?filter=a'),
                 200,
-                ['app' => 'test', 'uri' => 'main', 'method' => 'get', 'response' => 200]
+                ['app' => 'test', 'uri' => '/main', 'method' => 'get', 'response' => 200]
             ],
         ];
     }
@@ -74,10 +79,11 @@ class RequestTimingMiddlewareTest extends BaseTest
         $this->processRequest($request, $responseCode, $middleware);
         $this->statsdExporterClient->save();
 
+        $expectedTags['uri'] = strtoupper(preg_replace("/[^\/a-z]/", "", $request->getUri()->getPath()));
+
         $this->assertCount(1, $this->statsdExporterClient->getExportedMetrics());
         /** @var MemoryMetric $metric */
         $metric = current($this->statsdExporterClient->getExportedMetrics());
-        $expectedTags['uri'] = strtoupper(preg_replace("/[^a-z]/", "", $expectedTags['uri'])) ?: '_';
         $this->assertEquals($expectedTags, $metric->getTags());
         $this->assertEquals('ms', $metric->getUnit());
         $this->assertEquals('http_rest_service_api_request_duration', $metric->getName());

@@ -9,11 +9,11 @@ class SimpleRequestUriFormatter implements RequestUriFormatterInterface
 {
     public function format(UriInterface $uri): string
     {
-        // /v1/search/export/ --> v1_search_export
-        $result = str_replace('/', '_', preg_replace('#(^/|/$)#', '', $uri->getPath()));
-        // v1_carrier_1234 --> v1_carrier
-        $result = preg_replace('/_\d+/', '', $result);
-
+        // /v1/carrier/1234 --> /v1/carrier
+        $result = preg_replace('#/\d+/?$#', '', $uri->getPath());
+        if ($result !== '/') {
+            $result = preg_replace('#/$#', '', $result);
+        }
         return $result;
     }
 }

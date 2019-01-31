@@ -42,7 +42,7 @@ class RequestMetricsCollector extends MetricCollector
     protected function getTimersMetricTags(): array
     {
         return [
-            'uri'      => $this->uri ?: '_',
+            'uri'      => $this->uri,
             'method'   => $this->method,
             'response' => $this->statusCode ?? 'unknown'
         ];

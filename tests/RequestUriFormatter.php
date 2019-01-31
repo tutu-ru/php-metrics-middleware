@@ -10,6 +10,6 @@ class RequestUriFormatter implements RequestUriFormatterInterface
 {
     public function format(UriInterface $uri): string
     {
-        return strtoupper(preg_replace("/[^a-z]/", "", $uri->getPath()));
+        return strtoupper(preg_replace("/[^\/a-z]/", "", $uri->getPath()));
     }
 }
