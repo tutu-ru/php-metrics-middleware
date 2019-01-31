@@ -23,6 +23,11 @@ class RequestTimingMiddlewareTest extends BaseTest
                 ['app' => 'test', 'uri' => 'main', 'method' => 'get', 'response' => 200]
             ],
             [
+                Factory::createServerRequest('GET', '/main/1'),
+                200,
+                ['app' => 'test', 'uri' => 'main', 'method' => 'get', 'response' => 200]
+            ],
+            [
                 Factory::createServerRequest('POST', '/main/post'),
                 200,
                 ['app' => 'test', 'uri' => 'main_post', 'method' => 'post', 'response' => 200]
