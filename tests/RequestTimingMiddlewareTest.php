@@ -62,6 +62,27 @@ class RequestTimingMiddlewareTest extends BaseTest
     /**
      * @dataProvider requestDataProvider
      */
+    public function testRequestProcessingWithCustomUriFormatter($request, $responseCode, $expectedTags)
+    {
+        $middleware = new RequestTimingMiddleware($this->statsdExporterClient);
+        $middleware->setUriFormatter(new RequestUriFormatter());
+        $this->processRequest($request, $responseCode, $middleware);
+        $this->statsdExporterClient->save();
+
+        $this->assertCount(1, $this->statsdExporterClient->getExportedMetrics());
+        /** @var MemoryMetric $metric */
+        $metric = current($this->statsdExporterClient->getExportedMetrics());
+        $expectedTags['uri'] = strtoupper(preg_replace("/[^a-z]/", "", $expectedTags['uri'])) ?: '_';
+        $this->assertEquals($expectedTags, $metric->getTags());
+        $this->assertEquals('ms', $metric->getUnit());
+        $this->assertEquals('http_rest_service_api_request_duration', $metric->getName());
+        $this->assertGreaterThanOrEqual(0, $metric->getValue());
+    }
+
+
+    /**
+     * @dataProvider requestDataProvider
+     */
     public function testHandlerException($request, $responseCode, $expectedTags)
     {
         $responseCode = 400;

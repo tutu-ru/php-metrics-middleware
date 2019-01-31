@@ -11,20 +11,21 @@ use TutuRu\Metrics\StatsdExporterClientInterface;
 
 class RequestTimingMiddleware implements MiddlewareInterface
 {
-    /** @var StatsdExporterClientInterface */
     private $statsdExporterClient;
 
-    /** @var RequestMetricsCollector */
-    private $requestMetricCollector;
+    private $startTime;
 
     /** @var int */
     private $errorDefaultStatusCode = 400;
+
+    /** @var RequestUriFormatterInterface */
+    private $uriFormatter;
 
 
     public function __construct(StatsdExporterClientInterface $statsdExporterClient, ?float $startTime = null)
     {
         $this->statsdExporterClient = $statsdExporterClient;
-        $this->requestMetricCollector = new RequestMetricsCollector($startTime);
+        $this->startTime = $startTime;
     }
 
 
@@ -34,18 +35,29 @@ class RequestTimingMiddleware implements MiddlewareInterface
     }
 
 
+    public function setUriFormatter(RequestUriFormatterInterface $uriFormatter)
+    {
+        $this->uriFormatter = $uriFormatter;
+    }
+
+
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $response = null;
         try {
-            $this->requestMetricCollector->startTiming();
-            $this->requestMetricCollector->setRequest($request);
+            $uriFormatter = $this->uriFormatter ?? new SimpleRequestUriFormatter();
+            $requestMetricCollector = new RequestMetricsCollector(
+                $uriFormatter->format($request->getUri()),
+                strtolower($request->getMethod()),
+                $this->startTime
+            );
+            $requestMetricCollector->startTiming();
             $response = $handler->handle($request);
         } finally {
             $code = !is_null($response) ? $response->getStatusCode() : $this->errorDefaultStatusCode;
-            $this->requestMetricCollector->setStatusCode($code);
-            $this->requestMetricCollector->endTiming();
-            $this->requestMetricCollector->sendToStatsdExporter($this->statsdExporterClient);
+            $requestMetricCollector->setStatusCode($code);
+            $requestMetricCollector->endTiming();
+            $requestMetricCollector->sendToStatsdExporter($this->statsdExporterClient);
         }
         return $response;
     }

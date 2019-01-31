@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace TutuRu\MetricsMiddleware;
 
-use Psr\Http\Message\ServerRequestInterface;
 use TutuRu\Metrics\MetricCollector;
 
 class RequestMetricsCollector extends MetricCollector
@@ -15,24 +14,16 @@ class RequestMetricsCollector extends MetricCollector
     private $method;
     private $statusCode;
 
-    public function __construct(float $realStartTime = null)
+    public function __construct(string $uri, string $method, float $realStartTime = null)
     {
+        $this->uri = $uri;
+        $this->method = $method;
         $this->realStartTime = $realStartTime;
     }
 
     public function startTiming(?float $timeSeconds = null): void
     {
         parent::startTiming($timeSeconds ?? $this->realStartTime);
-    }
-
-
-    public function setRequest(ServerRequestInterface $request)
-    {
-        // /v1/search/export/ --> v1_search_export
-        $this->uri = str_replace('/', '_', preg_replace('#(^/|/$)#', '', $request->getUri()->getPath()));
-        // v1_carrier_1234 --> v1_carrier
-        $this->uri = preg_replace('/_\d+/', '', $this->uri);
-        $this->method = strtolower($request->getMethod());
     }
 
 
