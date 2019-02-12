@@ -10,23 +10,21 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TutuRu\Config\JsonConfig\JsonConfig;
-use TutuRu\Tests\Metrics\MemoryMetricExporter\MemoryMetricExporter;
-use TutuRu\Tests\Metrics\MemoryMetricExporter\MemoryMetricExporterFactory;
+use TutuRu\Tests\Metrics\MemoryStatsdExporter\MemoryStatsdExporterClient;
 
 abstract class BaseTest extends TestCase
 {
     /** @var JsonConfig */
     protected $config;
 
-    /** @var MemoryMetricExporter */
+    /** @var MemoryStatsdExporterClient */
     protected $statsdExporterClient;
 
 
     public function setUp()
     {
         parent::setUp();
-        $this->config = new JsonConfig(__DIR__ . '/config.json');
-        $this->statsdExporterClient = MemoryMetricExporterFactory::create($this->config);
+        $this->statsdExporterClient = new MemoryStatsdExporterClient("test");
     }
 
 

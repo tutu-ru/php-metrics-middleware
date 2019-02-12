@@ -6,7 +6,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "tutu-ru/lib-metrics": "^1.0",
+        "tutu-ru/lib-metrics": "^2.0",
         "psr/http-message": "^1.0",
         "psr/http-server-middleware": "^1.0",
         "php": "^7.1"
